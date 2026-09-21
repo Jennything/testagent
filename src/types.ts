@@ -27,12 +27,18 @@ export interface ScoredItem extends RawItem {
   reasoning: string;
 }
 
+export interface CarouselPoint {
+  point: string; // short summary point, shown on the summary slide
+  detail: string; // 1-2 sentence expansion, shown on its own detail slide
+}
+
 export interface Draft {
   itemId: string;
   templateId: "news_card" | "meme_card" | "breaking_card";
   headline: string;
   subhead?: string;
   bullets: string[];
+  points?: CarouselPoint[]; // news_card only — exactly 3, powers the carousel's summary + detail slides
   sourceLabel: string;
   captionInstagram: string;
   captionThreads: string;
@@ -53,8 +59,8 @@ export interface QueueEntry {
   queueId: string;
   item: ScoredItem;
   draft: Draft;
-  imagePath: string; // local rendered PNG path
-  imageUrl?: string; // public URL once hosted
+  imagePaths: string[]; // local rendered PNG path(s) — 1 for meme/breaking, 5 for a news carousel (cover, summary, 3 detail slides)
+  imageUrls?: string[]; // public URL(s) once hosted, same order as imagePaths
   status: QueueStatus;
   reviewEmailSent?: boolean;
   createdAt: string;

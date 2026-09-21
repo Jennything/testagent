@@ -1,5 +1,5 @@
-// Smoke test: renders one news card and one meme card with dummy data,
-// no API keys required. Run with: npm run test:render
+// Smoke test: renders a 5-slide news carousel and a single-image meme card
+// with dummy data, no API keys required. Run with: npm run test:render
 import path from "path";
 import { renderCard, closeRenderer } from "../src/visuals/render";
 import { ScoredItem, Draft } from "../src/types";
@@ -25,17 +25,27 @@ function makeItem(overrides: Partial<ScoredItem>): ScoredItem {
 }
 
 async function main() {
-  // Has a photo — exercises the full-bleed image + bottom banner layout.
+  // News carousel — has a photo, exercises cover + summary + 3 detail slides.
   const newsItem = makeItem({ imageUrl: "https://picsum.photos/seed/ainews-openai/1080/900" });
   const newsDraft: Draft = {
     itemId: newsItem.id,
     templateId: "news_card",
     headline: "OpenAI's New Model Is 40% Faster",
     subhead: "And it costs less per token than GPT-5.",
-    bullets: [
-      "Inference latency down 40% vs. previous model",
-      "Pricing cut for input tokens",
-      "Rolling out to API and ChatGPT this week",
+    bullets: [],
+    points: [
+      {
+        point: "40% faster inference than the previous model",
+        detail: "OpenAI says the new model responds noticeably faster in both the API and ChatGPT, especially on longer prompts.",
+      },
+      {
+        point: "Cheaper per token for API customers",
+        detail: "Input token pricing drops alongside the speed bump, making high-volume use cases meaningfully cheaper to run.",
+      },
+      {
+        point: "Rolling out to API and ChatGPT this week",
+        detail: "The update ships gradually across regions this week — no action needed, existing integrations pick it up automatically.",
+      },
     ],
     sourceLabel: "OpenAI Blog",
     captionInstagram: "OpenAI just shipped a faster, cheaper model. Here's what changed. Follow for the fastest AI news, no fluff. #AI #OpenAI #TechNews",
@@ -44,7 +54,7 @@ async function main() {
     createdAt: new Date().toISOString(),
   };
 
-  // No photo — exercises the gradient fallback layout.
+  // Meme card — single image, no photo, exercises the gradient fallback.
   const memeItem = makeItem({
     category: "meme",
     title: "Every AI startup pitch deck in 2026",
@@ -63,27 +73,17 @@ async function main() {
     createdAt: new Date().toISOString(),
   };
 
-  console.log("Rendering news card (with photo)...");
-  const newsPath = await renderCard(newsItem, newsDraft);
-  console.log("  →", newsPath);
+  console.log("Rendering news carousel (cover + summary + 3 detail slides)...");
+  const newsPaths = await renderCard(newsItem, newsDraft);
+  newsPaths.forEach((p) => console.log("  →", p));
 
-  console.log("Rendering meme card (no photo, gradient fallback)...");
-  const memePath = await renderCard(memeItem, memeDraft);
-  console.log("  →", memePath);
-
-  console.log("Rendering breaking card (with photo)...");
-  const breakingItem = makeItem({
-    score: 95,
-    publishedAt: new Date().toISOString(),
-    imageUrl: "https://picsum.photos/seed/ainews-breaking/1080/900",
-  });
-  const breakingDraft: Draft = { ...newsDraft, templateId: "news_card", headline: "Model Outage Hits ChatGPT Worldwide" };
-  const breakingPath = await renderCard(breakingItem, breakingDraft);
-  console.log("  →", breakingPath);
+  console.log("Rendering meme card (single image, gradient fallback)...");
+  const memePaths = await renderCard(memeItem, memeDraft);
+  memePaths.forEach((p) => console.log("  →", p));
 
   await closeRenderer();
-  console.log("\nDone. Open the PNGs above to verify the templates render correctly:");
-  console.log(path.dirname(newsPath));
+  console.log(`\nDone. ${newsPaths.length + memePaths.length} slide(s) total — open the PNGs above to verify:`);
+  console.log(path.dirname(newsPaths[0]));
 }
 
 main().catch((err) => {

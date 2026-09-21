@@ -30,19 +30,27 @@ function categoryLabel(entry: QueueEntry): string {
 
 function buildEmailBody(entry: QueueEntry): string {
   const b = entry.item.scoreBreakdown;
+  const isCarousel = entry.imagePaths.length > 1;
+  const pointsBlock = entry.draft.points?.length
+    ? [`[3가지 포인트]`, ...entry.draft.points.map((p, i) => `${i + 1}. ${p.point}\n   → ${p.detail}`), ``]
+    : [];
+
   return [
-    `카테고리: ${categoryLabel(entry)} (${entry.draft.templateId})`,
+    `카테고리: ${categoryLabel(entry)} (${entry.draft.templateId}${isCarousel ? `, ${entry.imagePaths.length}장 캐러셀` : ""})`,
     `헤드라인: ${entry.draft.headline}`,
     `소스: ${entry.item.source} — ${entry.item.url}`,
     `점수: ${entry.item.score} (최신성 ${b.recency} · 신뢰도 ${b.credibility} · 화제성 ${b.social} · 적합도 ${b.brandFit} · 참신성 ${b.novelty})`,
     ``,
+    ...pointsBlock,
     `[인스타그램 캡션]`,
     entry.draft.captionInstagram,
     ``,
     `[쓰레드 캡션]`,
     entry.draft.captionThreads,
     ``,
-    `카드 이미지는 첨부파일로 함께 보냈습니다.`,
+    isCarousel
+      ? `카드 이미지 ${entry.imagePaths.length}장(커버→요약→상세 순서)이 첨부되어 있습니다.`
+      : `카드 이미지는 첨부파일로 함께 보냈습니다.`,
     ``,
     `────────────────────────────────`,
     `이 메일에 그대로 "답장(Reply)"해서 알려주세요. 제목은 그대로 두세요.`,
@@ -61,7 +69,7 @@ async function sendForApproval(entry: QueueEntry): Promise<void> {
       to: EMAIL_TO,
       subject,
       text: buildEmailBody(entry),
-      attachments: [{ filename: "card.png", path: entry.imagePath }],
+      attachments: entry.imagePaths.map((p, i) => ({ filename: `slide-${i + 1}.png`, path: p })),
     });
     db.get("queue").find({ queueId: entry.queueId }).assign({ reviewEmailSent: true, updatedAt: nowIso() }).write();
     logger.info(`Sent review email for ${entry.queueId}: "${entry.draft.headline}"`);

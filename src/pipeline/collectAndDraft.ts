@@ -56,19 +56,21 @@ export async function runCollectAndDraft(): Promise<void> {
   for (const item of selected) {
     try {
       const draft = await draftForItem(item);
-      const imagePath = await renderCard(item, draft);
+      const imagePaths = await renderCard(item, draft);
 
       const entry: QueueEntry = {
         queueId: uuid(),
         item,
         draft,
-        imagePath,
+        imagePaths,
         status: "pending_approval",
         createdAt: nowIso(),
         updatedAt: nowIso(),
       };
       db.get("queue").push(entry).write();
-      logger.info(`Queued for approval: "${draft.headline}" [${item.category}, score ${item.score}]`);
+      logger.info(
+        `Queued for approval: "${draft.headline}" [${item.category}, score ${item.score}, ${imagePaths.length} slide(s)]`
+      );
     } catch (err) {
       logger.error(`Failed to draft/render item ${item.id} ("${item.title}"):`, (err as Error).message);
     }

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>summary_slide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px; height: 1350px;
+    font-family: "Inter", "Segoe UI", sans-serif;
+    overflow: hidden;
+    background: radial-gradient(120% 90% at 15% 0%, #1b1440 0%, #0a0a12 55%, #06060a 100%);
+  }
+
+  .card { width: 1080px; height: 1350px; padding: 76px 80px; display: flex; flex-direction: column; }
+
+  .top-row { display: flex; justify-content: space-between; align-items: center; }
+  .wordmark { display: flex; align-items: center; gap: 12px; }
+  .wordmark-badge {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, #4F7CFF, #7C5CFC);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: #fff;
+  }
+  .wordmark-text { font-weight: 800; font-size: 20px; letter-spacing: 2.5px; color: #A9BBFF; text-transform: uppercase; }
+  .kicker {
+    font-weight: 800; font-size: 20px; letter-spacing: 2.5px; color: #7C5CFC;
+    text-transform: uppercase; border: 1.5px solid #4F7CFF; border-radius: 999px;
+    padding: 8px 20px;
+  }
+
+  .headline {
+    font-family: "Bricolage Grotesque", "Inter", sans-serif;
+    font-weight: 800;
+    font-size: 52px;
+    line-height: 1.1;
+    color: #FAFAFF;
+    letter-spacing: -1px;
+    margin-top: 56px;
+  }
+
+  .points { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 44px; margin-top: 24px; }
+  .point-row { display: flex; gap: 28px; align-items: flex-start; }
+  .point-num {
+    min-width: 64px; height: 64px; border-radius: 16px;
+    background: rgba(124, 92, 252, 0.16); border: 1.5px solid #7C5CFC;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 28px; color: #C9BBFF;
+  }
+  .point-text { font-size: 34px; font-weight: 600; color: #EDEBFA; line-height: 1.35; padding-top: 10px; }
+
+  .footer { display: flex; justify-content: space-between; align-items: center; border-top: 1.5px solid rgba(255,255,255,0.12); padding-top: 28px; }
+  .brand { font-size: 26px; font-weight: 800; color: #FAFAFF; }
+  .swipe { font-size: 24px; color: #8B84B5; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-row">
+      <div class="wordmark">
+        <div class="wordmark-badge">AI</div>
+        <div class="wordmark-text">{{BRAND_NAME}}</div>
+      </div>
+      <div class="kicker">3 Things To Know</div>
+    </div>
+    <div class="headline">{{HEADLINE}}</div>
+    <div class="points">{{POINTS_HTML}}</div>
+    <div class="footer">
+      <div class="brand">{{BRAND_NAME}}</div>
+      <div class="swipe">Swipe for details →</div>
+    </div>
+  </div>
+</body>
+</html>

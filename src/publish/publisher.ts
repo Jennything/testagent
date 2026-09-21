@@ -3,7 +3,7 @@ import cron from "node-cron";
 import { db, nowIso } from "../db";
 import { QueueEntry } from "../types";
 import { publishImageUrl } from "../visuals/imageStore";
-import { publishToInstagram } from "./instagram";
+import { publishToInstagram, publishCarouselToInstagram } from "./instagram";
 import { publishToThreads } from "./threads";
 import { logger } from "../utils/logger";
 
@@ -27,13 +27,18 @@ export async function drainApprovedQueue(): Promise<void> {
     db.get("queue").find({ queueId: entry.queueId }).assign({ status: "publishing", updatedAt: nowIso() }).write();
 
     try {
-      const imageUrl = entry.imageUrl || (await publishImageUrl(entry.imagePath));
+      const imageUrls = entry.imageUrls || (await Promise.all(entry.imagePaths.map((p) => publishImageUrl(p))));
+      const isCarousel = imageUrls.length > 1;
 
       const jobs: Array<Promise<["instagram" | "threads", string]>> = [
-        publishToInstagram(imageUrl, entry.draft.captionInstagram).then((id) => ["instagram", id]),
+        (isCarousel
+          ? publishCarouselToInstagram(imageUrls, entry.draft.captionInstagram)
+          : publishToInstagram(imageUrls[0], entry.draft.captionInstagram)
+        ).then((id) => ["instagram", id]),
       ];
       if (threadsConfigured) {
-        jobs.push(publishToThreads(imageUrl, entry.draft.captionThreads).then((id) => ["threads", id]));
+        // Threads publishing here is single-image only — carousels post their cover slide.
+        jobs.push(publishToThreads(imageUrls[0], entry.draft.captionThreads).then((id) => ["threads", id]));
       }
 
       const results = await Promise.allSettled(jobs);
@@ -54,7 +59,7 @@ export async function drainApprovedQueue(): Promise<void> {
         .find({ queueId: entry.queueId })
         .assign({
           status: anyPublished ? "published" : "failed",
-          imageUrl,
+          imageUrls,
           publishedPostIds,
           reviewNote: errors.length ? errors.join(" | ") : entry.reviewNote,
           updatedAt: nowIso(),
