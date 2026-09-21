@@ -55,7 +55,7 @@ export interface QueueEntry {
   imagePath: string; // local rendered PNG path
   imageUrl?: string; // public URL once hosted
   status: QueueStatus;
-  telegramMessageId?: number;
+  reviewEmailSent?: boolean;
   createdAt: string;
   updatedAt: string;
   publishedPostIds?: { instagram?: string; threads?: string };

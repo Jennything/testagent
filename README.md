@@ -2,7 +2,7 @@
 
 AI 소식을 가장 빠르고 정확하게 전달하면서, 가끔 밈으로 웃겨주는 인스타그램·쓰레드 계정을
 **1인 사업가 + 에이전트**로 운영하기 위한 엔드투엔드 파이프라인입니다. 사람이 하는 일은
-**하루 1~2번, 텔레그램에서 승인/반려 버튼 누르기**뿐입니다. 나머지(소스 모니터링, 스코어링,
+**하루 1~2번, 이메일에 "승인"/"반려"라고 답장하기**뿐입니다. 나머지(소스 모니터링, 스코어링,
 카피라이팅, 카드 이미지 제작, 발행, 성과 분석·피드백)는 전부 에이전트가 처리합니다.
 
 레퍼런스: [@9gag](https://instagram.com/9gag) 의 스낵커블한 비주얼 포맷 + [@evolving.ai](https://instagram.com/evolving.ai) 의
@@ -18,7 +18,7 @@ AI 소식을 가장 빠르고 정확하게 전달하면서, 가끔 밈으로 웃
                                                                   ↓
 ┌───────────────┐   ┌──────────────┐   ┌──────────────┐   ┌───────────────┐
 │  분석·피드백    │ ← │     발행      │ ← │   사람 승인    │ ← │  승인 대기 큐    │
-│ IG/Threads Insights│ │IG/Threads Graph API│ │ 텔레그램 인라인 버튼 │ │  (lowdb JSON)   │
+│ IG/Threads Insights│ │IG/Threads Graph API│ │  이메일 답장(승인/반려)│ │  (lowdb JSON)   │
 └───────────────┘   └──────────────┘   └──────────────┘   └───────────────┘
 ```
 
@@ -28,7 +28,7 @@ AI 소식을 가장 빠르고 정확하게 전달하면서, 가끔 밈으로 웃
 | 큐레이션·스코어링 | `src/curation/*` | 최신성/신뢰도/화제성은 코드로 계산, 브랜드 적합도·참신성·카테고리는 Claude가 판정 |
 | 초안 작성 | `src/content/*` | `config/brand.json` 에 고정된 브랜드 보이스로 Claude가 뉴스카드/밈카드 카피 생성 |
 | 비주얼 생성 | `templates/*.html` + `src/visuals/render.ts` | Playwright로 HTML 템플릿을 1080×1350 PNG로 스크린샷 |
-| 사람 승인 | `src/approval/telegramBot.ts` | 하루 09:00/19:00 배치 + 인라인 버튼(승인/캡션 수정/반려) |
+| 사람 승인 | `src/approval/emailBot.ts` | 하루 09:00/19:00 배치로 이메일 발송 + 답장("승인"/"반려"/"수정") 자동 처리 |
 | 발행 | `src/publish/*` | IG Graph API + Threads API, 둘 다 "컨테이너 생성 → 퍼블리시" 2단계 |
 | 분석·피드백 | `src/analytics/*` | Insights API로 참여율 수집 → 소스별 성과 배수를 스코어링에 반영 |
 
@@ -48,7 +48,7 @@ npm run test:render
 # 2) 빌드 후 4개 프로세스를 각자 터미널(또는 pm2/docker)로 실행
 npm run build
 node dist/pipeline/runScheduler.js   # 07/12/17시: 수집→스코어링→초안→렌더→승인큐
-node dist/approval/telegramBot.js    # 09/19시 배치 발송 + 실시간 버튼 처리
+node dist/approval/emailBot.js       # 09/19시 배치 발송 + 5분마다 답장(승인/반려/수정) 확인
 node dist/publish/publisher.js       # 10분마다 승인된 항목을 IG+Threads에 발행
 node dist/analytics/insights.js      # 매일 23:30 참여율 수집 → 스코어링 피드백
 node dist/server/index.js            # 카드 이미지 퍼블릭 호스팅 (IMAGE_HOST=local일 때)
@@ -60,8 +60,11 @@ node dist/server/index.js            # 카드 이미지 퍼블릭 호스팅 (IMA
 ## 필요한 계정/키 (`.env`)
 
 1. **Anthropic API 키** — 스코어링 + 카피라이팅에 사용. https://console.anthropic.com
-2. **텔레그램 봇** — [@BotFather](https://t.me/BotFather)로 봇 생성 → 토큰 발급 → 본인 계정으로
-   메시지 한 번 보낸 뒤 `https://api.telegram.org/bot<TOKEN>/getUpdates` 로 chat_id 확인.
+2. **승인용 전용 Gmail 계정** — 새 Gmail 계정을 하나 만드세요 (예: `ai.pulse.review@gmail.com`).
+   1) 그 계정에 로그인 → 구글 계정 설정 → 보안 → **2단계 인증** 켜기 (필수).
+   2) 2단계 인증을 켠 뒤에만 나오는 **앱 비밀번호(App Password)** 메뉴에서 "메일" 앱용 비밀번호 생성
+      → 16자리 문자열이 나오면 그게 `EMAIL_APP_PASSWORD` 입니다.
+   3) 그 Gmail 주소가 `EMAIL_USER`, 카드를 실제로 받아볼 평소 쓰는 이메일 주소가 `EMAIL_TO` 입니다.
 3. **Instagram (Meta Graph API)** — 비즈니스용 Facebook 페이지에 IG 비즈니스 계정 연결 →
    [Meta for Developers](https://developers.facebook.com) 앱 생성 → `instagram_content_publish` 권한 →
    장기 액세스 토큰 발급.
@@ -76,12 +79,13 @@ RSS 피드 URL(`config/sources.json`)은 각 매체가 수시로 바꾸므로, �
 
 ## 매일 운영 흐름 (사람이 하는 유일한 일)
 
-1. 텔레그램으로 아침 09:00, 저녁 19:00에 카드 이미지 + 캡션 미리보기가 배치로 도착합니다.
-2. 각 카드 아래 버튼 3개:
-   - **✅ Approve** → 즉시 발행 대기열로. 10분 내 IG+Threads 동시 발행.
-   - **✏️ Edit caption** → 그 메시지에 답장(reply)으로 새 캡션을 보내면 자동 승인.
-   - **❌ Reject** → 폐기, 학습 데이터로는 남지 않음(원하면 `reviewNote`로 반려 사유 남기는 기능 확장 가능).
-3. 하루 1~2번, 몇 분이면 끝. 나머지는 스케줄러가 알아서 돕니다.
+1. 아침 09:00, 저녁 19:00에 `EMAIL_TO` 주소로 카드 이미지(첨부파일) + 캡션 미리보기 메일이 배치로 도착합니다.
+   메일 제목은 `[검토 필요 · 뉴스] 헤드라인... (ID:...)` 형식입니다.
+2. 그 메일에 **그대로 "답장(Reply)"** 해서 제목은 건드리지 말고 본문 첫 줄에:
+   - **"승인"** → 발행 대기열로. 10분 내 IG+Threads 동시 발행.
+   - **"반려"** → 폐기.
+   - **"수정"** 이라고 적고 둘째 줄부터 새 인스타그램 캡션을 통째로 적으면 → 그 캡션으로 자동 승인.
+3. 5분마다 답장을 자동으로 확인합니다. 하루 1~2번, 몇 분이면 끝. 나머지는 스케줄러가 알아서 돕니다.
 
 ## 콘텐츠 믹스 & 발행량
 
@@ -112,8 +116,8 @@ RSS 피드 URL(`config/sources.json`)은 각 매체가 수시로 바꾸므로, �
 2. **뉴스:밈 = 7:3 을 지키되, 밈이 항상 더 잘 퍼집니다.** Insights 피드백 루프가 밈 비율을
    너무 낮추지 않도록 `config/brand.json` 에서 하한선을 관리하세요.
 3. **브레이킹 뉴스는 속도가 전부입니다.** 07/12/17시 3회 수집 주기 사이에 대형 발표(OpenAI
-   DevDay급)가 터지면, `npm run dev:collect` 를 수동으로 한 번 더 돌려 텔레그램에 바로
-   띄우세요 — 승인 한 번이면 10분 내 발행됩니다.
+   DevDay급)가 터지면, `npm run dev:collect` 를 수동으로 한 번 더 돌려 검토 메일이 바로
+   오게 하세요 — 승인 답장 한 번이면 10분 내 발행됩니다.
 4. **쓰레드는 텍스트가 왕입니다.** `captionThreads` 를 IG 캡션의 축소판이 아니라 별도로
    짧고 대화체로 쓰도록 브랜드 보이스 프롬프트가 강제합니다 — 그대로 유지하세요.
 5. **댓글창이 2차 콘텐츠입니다.** 초기엔 사업가 본인이 상위 댓글에 직접 답글을 달아
@@ -134,4 +138,4 @@ RSS 피드 URL(`config/sources.json`)은 각 매체가 수시로 바꾸므로, �
 - X 소스 연동 활성화 (`config/sources.json.x.enabled`, 유료 API 필요)
 - 스토리/릴스용 세로 9:16 템플릿 추가
 - 반려 사유를 큐레이션 프롬프트에 few-shot 예시로 되먹임
-- 대시보드(웹 UI)로 텔레그램 대신/함께 승인 — 지금은 텔레그램만으로 충분히 빠릅니다
+- 대시보드(웹 UI)로 이메일 대신/함께 승인 — 지금은 이메일만으로 충분히 빠릅니다

@@ -18,7 +18,7 @@ services:
 
   approval-bot:
     build: .
-    command: node dist/approval/telegramBot.js
+    command: node dist/approval/emailBot.js
     env_file: .env
     volumes:
       - ./data:/app/data
