@@ -10,7 +10,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 1080px; height: 1350px; font-family: "Inter", "Segoe UI", sans-serif; overflow: hidden; background: #0a0607; }
 
-  .card { width: 1080px; height: 1350px; display: flex; flex-direction: column; }
+  .card { width: 1080px; height: 1350px; display: flex; flex-direction: column; position: relative; }
 
   .photo-area {
     position: relative;
@@ -24,7 +24,6 @@
     background: radial-gradient(circle, rgba(255,46,77,0.35) 0%, rgba(255,46,77,0) 70%);
     top: -200px; left: 50%; transform: translateX(-50%);
   }
-  .photo-area.no-photo .bg-photo { display: none; }
   .bg-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   .tag {
@@ -64,14 +63,25 @@
     font-size: 30px; font-weight: 500; color: #C98E94; line-height: 1.4; max-width: 900px;
     text-transform: uppercase;
   }
+
+  /* No photo available: drop the empty photo strip, panel fills the canvas.
+     .tag lives on .card now so it still shows in this mode. */
+  .card.no-photo .photo-area { display: none; }
+  .card.no-photo .panel {
+    height: 1350px;
+    background: radial-gradient(120% 90% at 50% 0%, #4a0d14 0%, #10060a 55%, #06060a 100%);
+    padding: 96px 96px; gap: 32px;
+  }
+  .card.no-photo .headline { font-size: 92px; }
+  .card.no-photo .deck { font-size: 36px; max-width: 860px; }
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="photo-area {{PHOTO_CLASS}}">
+  <div class="card {{PHOTO_CLASS}}">
+    <div class="tag">Breaking</div>
+    <div class="photo-area">
       <div class="blob"></div>
       {{IMAGE_TAG}}
-      <div class="tag">Breaking</div>
     </div>
     <div class="panel">
       <div class="divider"></div>

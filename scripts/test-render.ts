@@ -57,7 +57,7 @@ async function main() {
     createdAt: new Date().toISOString(),
   };
 
-  // Meme card — single image, no photo, exercises the gradient fallback.
+  // Meme card — no photo, exercises the full-height text-only fallback layout.
   const memeItem = makeItem({
     category: "meme",
     title: "Every AI startup pitch deck in 2026",
@@ -76,16 +76,26 @@ async function main() {
     createdAt: new Date().toISOString(),
   };
 
+  // Same news item/draft but with no photo — exercises the news cover's
+  // full-height text-only fallback layout (score kept below 90 so it uses
+  // the regular news_card template, not breaking_card).
+  const newsNoPhotoItem = makeItem({ score: 80 });
+
   console.log("Rendering news carousel (cover + summary + 3 detail slides + CTA)...");
   const newsPaths = await renderCard(newsItem, newsDraft);
   newsPaths.forEach((p) => console.log("  →", p));
 
-  console.log("Rendering meme card (single image, gradient fallback)...");
+  console.log("Rendering meme card (no photo, full-height text fallback)...");
   const memePaths = await renderCard(memeItem, memeDraft);
   memePaths.forEach((p) => console.log("  →", p));
 
+  console.log("Rendering news cover with no photo (full-height text fallback)...");
+  const noPhotoPaths = await renderCard(newsNoPhotoItem, { ...newsDraft, itemId: newsNoPhotoItem.id });
+  noPhotoPaths.forEach((p) => console.log("  →", p));
+
   await closeRenderer();
-  console.log(`\nDone. ${newsPaths.length + memePaths.length} slide(s) total — open the PNGs above to verify:`);
+  const total = newsPaths.length + memePaths.length + noPhotoPaths.length;
+  console.log(`\nDone. ${total} slide(s) total — open the PNGs above to verify:`);
   console.log(path.dirname(newsPaths[0]));
 }
 

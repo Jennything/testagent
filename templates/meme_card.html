@@ -10,7 +10,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 1080px; height: 1350px; font-family: "Inter", "Segoe UI", sans-serif; overflow: hidden; background: #0a0608; }
 
-  .card { width: 1080px; height: 1350px; display: flex; flex-direction: column; }
+  .card { width: 1080px; height: 1350px; display: flex; flex-direction: column; position: relative; }
 
   .photo-area {
     position: relative;
@@ -24,7 +24,6 @@
     background: radial-gradient(circle, rgba(255,77,109,0.35) 0%, rgba(255,77,109,0) 70%);
     top: -180px; left: -220px;
   }
-  .photo-area.no-photo .bg-photo { display: none; }
   .bg-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   .tag {
@@ -37,7 +36,7 @@
   .panel {
     width: 1080px; height: 450px; background: #0a0a0a;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 56px 72px; text-align: center; gap: 22px;
+    padding: 44px 64px; text-align: center; gap: 20px;
   }
   .divider { width: 110px; height: 3px; background: #FF4D6D; border-radius: 2px; }
   .wordmark { display: flex; align-items: center; gap: 12px; }
@@ -54,24 +53,35 @@
   .headline {
     font-family: "Bricolage Grotesque", "Inter", sans-serif;
     font-weight: 800;
-    font-size: 56px;
-    line-height: 1.1;
+    font-size: 68px;
+    line-height: 1.08;
     color: #FFF6F8;
     text-transform: uppercase;
-    letter-spacing: -1px;
+    letter-spacing: -1.5px;
   }
   .deck {
-    font-size: 25px; font-weight: 500; color: #C79AA6; line-height: 1.4; max-width: 880px;
+    font-size: 30px; font-weight: 500; color: #C79AA6; line-height: 1.4; max-width: 900px;
     text-transform: uppercase;
   }
+
+  /* No photo available: drop the empty photo strip, panel fills the canvas.
+     .tag lives on .card now so it still shows in this mode. */
+  .card.no-photo .photo-area { display: none; }
+  .card.no-photo .panel {
+    height: 1350px;
+    background: radial-gradient(120% 90% at 80% 0%, #401a3a 0%, #120a0e 55%, #06060a 100%);
+    padding: 96px 96px; gap: 32px;
+  }
+  .card.no-photo .headline { font-size: 90px; }
+  .card.no-photo .deck { font-size: 36px; max-width: 860px; }
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="photo-area {{PHOTO_CLASS}}">
+  <div class="card {{PHOTO_CLASS}}">
+    <div class="tag">Meme</div>
+    <div class="photo-area">
       <div class="blob"></div>
       {{IMAGE_TAG}}
-      <div class="tag">Meme</div>
     </div>
     <div class="panel">
       <div class="divider"></div>

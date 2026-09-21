@@ -5,6 +5,7 @@ import { filterAlreadyCovered } from "../curation/dedupe";
 import { scoreItems, applyThreshold } from "../curation/score";
 import { draftForItem } from "../content/draft";
 import { renderCard } from "../visuals/render";
+import { fetchOgImage } from "../sources/ogImage";
 import { db, nowIso } from "../db";
 import { QueueEntry, ScoredItem, RawItem } from "../types";
 import { logger } from "../utils/logger";
@@ -55,6 +56,13 @@ export async function runCollectAndDraft(): Promise<void> {
 
   for (const item of selected) {
     try {
+      // RSS often doesn't include a photo — try the article page's own
+      // og:image before falling back to a text-only cover in render.ts.
+      if (!item.imageUrl) {
+        const ogImage = await fetchOgImage(item.url);
+        if (ogImage) item.imageUrl = ogImage;
+      }
+
       const draft = await draftForItem(item);
       const imagePaths = await renderCard(item, draft);
 

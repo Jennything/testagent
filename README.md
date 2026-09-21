@@ -99,8 +99,9 @@ RSS 피드 URL(`config/sources.json`)은 각 매체가 수시로 바꾸므로, �
   2. **요약** — 헤드라인 + 번호 매긴 3가지 포인트 (`templates/summary_slide.html`)
   3~5. **상세** — 3가지 포인트를 한 장씩 60~100단어로 자세히 설명 (`templates/detail_slide.html`, 큰 번호 워터마크)
   6. **CTA** — "Your 5-Minute AI Digest" 태그라인 + 팔로우 유도 (`templates/cta_slide.html`, Claude 호출 없이 `config/brand.json.cta`에서 고정 문구 사용)
-- **밈 (`meme_card`) → 1장** — 속도가 생명이라 캐러셀 없이 사진/그라데이션 + 헤드라인만 (`templates/meme_card.html`)
+- **밈 (`meme_card`) → 1장** — 속도가 생명이라 캐러셀 없이 사진/텍스트 + 헤드라인만 (`templates/meme_card.html`)
 - Claude가 뉴스 아이템마다 `points: [{point, detail}, ...]` 정확히 3개를 생성하고, `src/visuals/render.ts` 가 이걸로 슬라이드 2~5를 채웁니다. `detail`은 60~100단어 분량으로 구체적인 수치·비교·영향을 담도록 프롬프트에 명시했습니다(`src/content/brandVoice.ts`). 3개가 안 오면 폴백 포인트로 대체합니다(`src/content/draft.ts`).
+- **사진 폴백 순서**: ① RSS 피드 자체에 있는 이미지(`enclosure`/`media:content`/본문 첫 `<img>`) → ② 그것도 없으면 기사 원문 페이지의 `og:image` 메타태그를 가져옴(`src/sources/ogImage.ts`, 선택된 아이템에만 적용해서 느려지지 않음) → ③ 그래도 없으면 사진 영역(900px) 자체를 없애고 패널이 캔버스 전체(1350px)를 채우는 텍스트 전용 레이아웃으로 자동 전환됩니다(헤드라인/부제 폰트도 더 커짐) — 빈 그라데이션 여백이 남지 않도록 설계했습니다.
 - 인스타그램 발행 시 슬라이드 개수로 자동 분기합니다: 2장 이상이면 `publishCarouselToInstagram`(CAROUSEL_ITEM 컨테이너 여러 개 → CAROUSEL 부모 컨테이너 → 퍼블리시), 1장이면 기존 단일 이미지 발행. Threads는 (연동 시) 캐러셀 여부와 무관하게 항상 커버 슬라이드 1장만 올라갑니다 — Threads 캐러셀 API는 아직 안 붙여놨습니다.
 
 ## 콘텐츠 믹스 & 발행량
