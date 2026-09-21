@@ -57,7 +57,7 @@ async function sendForApproval(entry: QueueEntry): Promise<void> {
   const subject = `[검토 필요 · ${categoryLabel(entry)}] ${entry.draft.headline} (ID:${entry.queueId})`;
   try {
     await transporter.sendMail({
-      from: `"AI Pulse 검토봇" <${EMAIL_USER}>`,
+      from: `"AI News You Need 검토봇" <${EMAIL_USER}>`,
       to: EMAIL_TO,
       subject,
       text: buildEmailBody(entry),

@@ -4,13 +4,35 @@ import { idFromUrl } from "./hash";
 import { logger } from "../utils/logger";
 import sourcesConfig from "../../config/sources.json";
 
-const parser = new Parser({ timeout: 15000 });
+const parser = new Parser({
+  timeout: 15000,
+  customFields: {
+    item: [["media:content", "mediaContent"], ["media:thumbnail", "mediaThumbnail"], "content:encoded"],
+  },
+});
 
 interface RssSourceConfig {
   id: string;
   url: string;
   credibility: number;
   kind: "lab" | "press";
+}
+
+function extractImage(entry: any): string | undefined {
+  if (entry.enclosure?.url && /^https?:\/\//.test(entry.enclosure.url)) return entry.enclosure.url;
+
+  const media = entry.mediaContent || entry.mediaThumbnail;
+  if (media) {
+    const node = Array.isArray(media) ? media[0] : media;
+    const url = node?.$?.url || node?.url;
+    if (url) return url;
+  }
+
+  const html: string = entry["content:encoded"] || entry.content || entry.summary || "";
+  const match = /<img[^>]+src="([^">]+)"/i.exec(html);
+  if (match) return match[1];
+
+  return undefined;
 }
 
 export async function fetchRssItems(): Promise<RawItem[]> {
@@ -30,6 +52,7 @@ export async function fetchRssItems(): Promise<RawItem[]> {
             sourceKind: feed.kind,
             title: entry.title.trim(),
             url: entry.link,
+            imageUrl: extractImage(entry),
             summary: (entry.contentSnippet || entry.content || "").slice(0, 500),
             publishedAt,
             socialSignal: 0,

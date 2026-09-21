@@ -25,7 +25,8 @@ function makeItem(overrides: Partial<ScoredItem>): ScoredItem {
 }
 
 async function main() {
-  const newsItem = makeItem({});
+  // Has a photo — exercises the full-bleed image + bottom banner layout.
+  const newsItem = makeItem({ imageUrl: "https://picsum.photos/seed/ainews-openai/1080/900" });
   const newsDraft: Draft = {
     itemId: newsItem.id,
     templateId: "news_card",
@@ -43,6 +44,7 @@ async function main() {
     createdAt: new Date().toISOString(),
   };
 
+  // No photo — exercises the gradient fallback layout.
   const memeItem = makeItem({
     category: "meme",
     title: "Every AI startup pitch deck in 2026",
@@ -52,26 +54,30 @@ async function main() {
   const memeDraft: Draft = {
     itemId: memeItem.id,
     templateId: "meme_card",
-    headline: "Every AI Pitch Deck In 2026: 'We're The Uber For X, But With Agents'",
+    headline: "Every AI Pitch Deck: 'Uber For X, But With Agents'",
     bullets: ["Slide 1: Problem. Slide 2: Agents. Slide 3: $50M ask."],
     sourceLabel: "r/artificial",
-    captionInstagram: "We've all seen this deck. Follow @ai.pulse — we explain the news, then we laugh about it. #AI #startups",
+    captionInstagram: "We've all seen this deck. Follow @AiNewsYouNeed — we explain the news, then we laugh about it. #AI #startups",
     captionThreads: "Every AI pitch deck, 2026 edition.",
     hashtags: ["#AI", "#startups"],
     createdAt: new Date().toISOString(),
   };
 
-  console.log("Rendering news card...");
+  console.log("Rendering news card (with photo)...");
   const newsPath = await renderCard(newsItem, newsDraft);
   console.log("  →", newsPath);
 
-  console.log("Rendering meme card...");
+  console.log("Rendering meme card (no photo, gradient fallback)...");
   const memePath = await renderCard(memeItem, memeDraft);
   console.log("  →", memePath);
 
-  console.log("Rendering breaking card...");
-  const breakingItem = makeItem({ score: 95, publishedAt: new Date().toISOString() });
-  const breakingDraft: Draft = { ...newsDraft, templateId: "news_card", headline: "BREAKING: Model Outage Hits ChatGPT Worldwide" };
+  console.log("Rendering breaking card (with photo)...");
+  const breakingItem = makeItem({
+    score: 95,
+    publishedAt: new Date().toISOString(),
+    imageUrl: "https://picsum.photos/seed/ainews-breaking/1080/900",
+  });
+  const breakingDraft: Draft = { ...newsDraft, templateId: "news_card", headline: "Model Outage Hits ChatGPT Worldwide" };
   const breakingPath = await renderCard(breakingItem, breakingDraft);
   console.log("  →", breakingPath);
 

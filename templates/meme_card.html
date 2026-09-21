@@ -3,70 +3,84 @@
 <head>
 <meta charset="UTF-8" />
 <title>meme_card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body {
+  html, body { width: 1080px; height: 1350px; font-family: "Inter", "Segoe UI", sans-serif; overflow: hidden; background: #0a0608; }
+
+  .card { width: 1080px; height: 1350px; display: flex; flex-direction: column; }
+
+  .photo-area {
+    position: relative;
     width: 1080px;
-    height: 1350px;
-    background: radial-gradient(120% 120% at 85% 0%, #401a3a 0%, #120a0e 55%, #06060a 100%);
-    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    height: 900px;
     overflow: hidden;
+    background: radial-gradient(120% 120% at 80% 10%, #4a1a3a 0%, #170a12 55%, #0a0608 100%);
   }
-  .card { width: 1080px; height: 1350px; padding: 72px 76px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
-  .top-row { display: flex; justify-content: space-between; align-items: center; }
-  .source-pill {
-    background: rgba(255, 77, 109, 0.16);
-    border: 1.5px solid #FF4D6D;
-    color: #FFC2CF;
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    padding: 10px 24px;
-    border-radius: 999px;
+  .photo-area .blob {
+    position: absolute; width: 760px; height: 760px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,77,109,0.35) 0%, rgba(255,77,109,0) 70%);
+    top: -180px; left: -220px;
+  }
+  .photo-area.no-photo .bg-photo { display: none; }
+  .bg-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .tag {
+    position: absolute; top: 40px; left: 40px;
+    background: rgba(255,210,63,0.92); color: #241900;
+    font-weight: 800; font-size: 22px; letter-spacing: 2px;
+    padding: 8px 20px; border-radius: 999px; text-transform: uppercase;
+  }
+
+  .panel {
+    width: 1080px; height: 450px; background: #0a0a0a;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 56px 72px; text-align: center; gap: 22px;
+  }
+  .divider { width: 110px; height: 3px; background: #FF4D6D; border-radius: 2px; }
+  .wordmark { display: flex; align-items: center; gap: 12px; }
+  .wordmark-badge {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, #FF4D6D, #FFD23F);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: #241900; font-family: "Inter";
+  }
+  .wordmark-text {
+    font-weight: 800; font-size: 22px; letter-spacing: 3px; color: #FFC2CF;
     text-transform: uppercase;
   }
-  .badge {
-    background: #FFD23F;
-    color: #241900;
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    padding: 10px 22px;
-    border-radius: 999px;
-    text-transform: uppercase;
-  }
-  .body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 36px; }
   .headline {
-    font-size: 92px;
-    font-weight: 800;
-    line-height: 1.05;
+    font-family: "Anton", "Inter", sans-serif;
+    font-weight: 400;
+    font-size: 56px;
+    line-height: 1.1;
     color: #FFF6F8;
-    letter-spacing: -1.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
-  .bullets { display: flex; flex-direction: column; gap: 18px; margin-top: 4px; }
-  .bullet { font-size: 38px; color: #FFD9E0; font-weight: 600; line-height: 1.4; }
-  .footer { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1.5px solid rgba(255,255,255,0.12); padding-top: 32px; }
-  .brand { font-size: 32px; font-weight: 800; color: #FFF6F8; letter-spacing: 1px; }
-  .brand-sub { font-size: 24px; color: #C79AA6; margin-top: 4px; }
-  .date { font-size: 24px; color: #C79AA6; text-align: right; }
+  .deck {
+    font-size: 25px; font-weight: 500; color: #C79AA6; line-height: 1.4; max-width: 880px;
+    text-transform: uppercase;
+  }
 </style>
 </head>
 <body>
   <div class="card">
-    <div class="top-row">
-      <div class="source-pill">{{SOURCE_LABEL}}</div>
-      <div class="badge">{{BADGE}}</div>
+    <div class="photo-area {{PHOTO_CLASS}}">
+      <div class="blob"></div>
+      {{IMAGE_TAG}}
+      <div class="tag">Meme</div>
     </div>
-    <div class="body">
-      <div class="headline">{{HEADLINE}}</div>
-      <div class="bullets">{{BULLETS_HTML}}</div>
-    </div>
-    <div class="footer">
-      <div>
-        <div class="brand">{{BRAND_NAME}}</div>
-        <div class="brand-sub">{{BRAND_HANDLE}}</div>
+    <div class="panel">
+      <div class="divider"></div>
+      <div class="wordmark">
+        <div class="wordmark-badge">AI</div>
+        <div class="wordmark-text">{{BRAND_NAME}}</div>
       </div>
-      <div class="date">{{DATE}}</div>
+      <div class="headline">{{HEADLINE}}</div>
+      <div class="deck">{{DECK}}</div>
     </div>
   </div>
 </body>

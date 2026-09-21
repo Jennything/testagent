@@ -41,44 +41,37 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function pickTemplate(item: ScoredItem, draft: Draft): { file: string; badge: string } {
+function pickTemplate(item: ScoredItem, draft: Draft): string {
   const ageHours = (Date.now() - new Date(item.publishedAt).getTime()) / 3600000;
-  if (draft.templateId === "meme_card") {
-    return { file: "meme_card.html", badge: "MEME" };
-  }
-  if (item.score >= 90 && ageHours <= 3) {
-    return { file: "breaking_card.html", badge: "BREAKING" };
-  }
-  return { file: "news_card.html", badge: "NEWS" };
+  if (draft.templateId === "meme_card") return "meme_card.html";
+  if (item.score >= 90 && ageHours <= 3) return "breaking_card.html";
+  return "news_card.html";
 }
 
-function bulletsHtml(bullets: string[], dotted: boolean): string {
-  return bullets
-    .map((b) =>
-      dotted
-        ? `<div class="bullet"><div class="bullet-dot"></div><div>${escapeHtml(b)}</div></div>`
-        : `<div class="bullet">${escapeHtml(b)}</div>`
-    )
-    .join("\n");
+// A short "deck" line under the headline (see the evolving.ai-style reference
+// layout) — the subhead if we have one, else the first bullet or two,
+// capped so it never overflows the fixed-height panel.
+function buildDeck(draft: Draft): string {
+  const parts = [draft.subhead, ...draft.bullets].filter((s): s is string => !!s && s.trim().length > 0);
+  let deck = parts.join(" ").trim();
+  if (deck.length > 130) deck = deck.slice(0, 127).trimEnd() + "…";
+  return deck;
 }
 
 export async function renderCard(item: ScoredItem, draft: Draft): Promise<string> {
-  const { file, badge } = pickTemplate(item, draft);
+  const file = pickTemplate(item, draft);
   const templatePath = path.join(templatesDir, file);
   let html = fs.readFileSync(templatePath, "utf-8");
 
-  const dotted = file !== "meme_card.html";
-  const dateLabel = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const hasImage = !!item.imageUrl;
+  const imageTag = hasImage ? `<img class="bg-photo" src="${escapeHtml(item.imageUrl!)}" />` : "";
 
   const replacements: Record<string, string> = {
     "{{HEADLINE}}": escapeHtml(draft.headline),
-    "{{SUBHEAD}}": escapeHtml(draft.subhead || ""),
-    "{{BULLETS_HTML}}": bulletsHtml(draft.bullets, dotted),
-    "{{SOURCE_LABEL}}": escapeHtml(draft.sourceLabel),
-    "{{BADGE}}": badge,
+    "{{DECK}}": escapeHtml(buildDeck(draft)),
     "{{BRAND_NAME}}": escapeHtml(brandConfig.name),
-    "{{BRAND_HANDLE}}": escapeHtml(brandConfig.handle_instagram),
-    "{{DATE}}": dateLabel,
+    "{{PHOTO_CLASS}}": hasImage ? "" : "no-photo",
+    "{{IMAGE_TAG}}": imageTag,
   };
   for (const [token, value] of Object.entries(replacements)) {
     html = html.split(token).join(value);

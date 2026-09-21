@@ -6,6 +6,7 @@ export interface RawItem {
   sourceKind: SourceKind;
   title: string;
   url: string;
+  imageUrl?: string; // article/post photo, used as the card's background image when present
   summary?: string;
   publishedAt: string; // ISO
   socialSignal: number; // upvotes / points / reactions, normalized later

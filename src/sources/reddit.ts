@@ -12,7 +12,19 @@ interface RedditPost {
     ups: number;
     created_utc: number;
     selftext?: string;
+    post_hint?: string;
+    preview?: { images?: Array<{ source?: { url?: string } }> };
+    thumbnail?: string;
   };
+}
+
+function extractImage(d: RedditPost["data"]): string | undefined {
+  const previewUrl = d.preview?.images?.[0]?.source?.url;
+  if (previewUrl) return previewUrl.replace(/&amp;/g, "&");
+  if (d.post_hint === "image" && /^https?:\/\//.test(d.url)) return d.url;
+  if (/\.(jpg|jpeg|png|gif|webp)$/i.test(d.url)) return d.url;
+  if (d.thumbnail && /^https?:\/\//.test(d.thumbnail)) return d.thumbnail;
+  return undefined;
 }
 
 export async function fetchRedditItems(): Promise<RawItem[]> {
@@ -39,6 +51,7 @@ export async function fetchRedditItems(): Promise<RawItem[]> {
             sourceKind: "reddit",
             title: d.title,
             url,
+            imageUrl: extractImage(d),
             summary: d.selftext ? d.selftext.slice(0, 500) : undefined,
             publishedAt: new Date(d.created_utc * 1000).toISOString(),
             socialSignal: d.ups,

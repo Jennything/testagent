@@ -1,7 +1,7 @@
 {
-  "name": "AI Pulse",
-  "handle_instagram": "@ai.pulse",
-  "handle_threads": "@ai.pulse",
+  "name": "AI News You Need",
+  "handle_instagram": "@AiNewsYouNeed",
+  "handle_threads": "@AiNewsYouNeed",
   "positioning": "The fastest, most accurate AI news account on the internet — with the meme energy of 9gag and the clean, credible explainer voice of evolving.ai.",
   "voice": {
     "tone": "Confident, punchy, slightly irreverent. Explains complex AI news in plain English in under 8 seconds of reading. Never breathless hype, never dry corporate-speak.",
@@ -27,6 +27,6 @@
   },
   "cta": {
     "news": "Follow for the fastest AI news, no fluff.",
-    "meme": "Follow @ai.pulse — we explain the news, then we laugh about it."
+    "meme": "Follow @AiNewsYouNeed — we explain the news, then we laugh about it."
   }
 }
