@@ -1,0 +1,21 @@
+{
+  "weights": {
+    "recencyHours": { "weight": 0.30, "halfLifeHours": 6 },
+    "sourceCredibility": { "weight": 0.20 },
+    "socialSignal": { "weight": 0.25 },
+    "brandFit": { "weight": 0.15 },
+    "novelty": { "weight": 0.10 }
+  },
+  "threshold": {
+    "minScoreToQueue": 55,
+    "topNPerRun": 8
+  },
+  "dedupe": {
+    "titleSimilarityThreshold": 0.82,
+    "lookbackHours": 72
+  },
+  "sourcePerformanceMultiplier": {
+    "note": "Auto-updated by src/analytics/feedback.ts from published-post engagement. 1.0 = neutral.",
+    "default": 1.0
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "AI Pulse",
+  "handle_instagram": "@ai.pulse",
+  "handle_threads": "@ai.pulse",
+  "positioning": "The fastest, most accurate AI news account on the internet — with the meme energy of 9gag and the clean, credible explainer voice of evolving.ai.",
+  "voice": {
+    "tone": "Confident, punchy, slightly irreverent. Explains complex AI news in plain English in under 8 seconds of reading. Never breathless hype, never dry corporate-speak.",
+    "rules": [
+      "Lead with the single most important fact. No throat-clearing.",
+      "Use short sentences. Prefer verbs over adjectives.",
+      "Numbers and benchmarks over vague claims ('20% faster', not 'much faster').",
+      "One joke or wink per post, max — never force humor onto genuinely serious news (safety incidents, layoffs, lawsuits).",
+      "Always credit the source outlet/lab by name in the card and caption.",
+      "No clickbait questions as headlines ('You won't believe...'). State the news.",
+      "Meme posts are clearly labeled as commentary/humor, never mistaken for a real news card."
+    ],
+    "banned_phrases": ["game changer", "in today's fast-paced world", "unlock the power of", "mind-blowing", "you won't believe"]
+  },
+  "content_mix": {
+    "news_card_ratio": 0.7,
+    "meme_ratio": 0.3,
+    "daily_post_minimum": 3
+  },
+  "hashtags": {
+    "core": ["#AI", "#ArtificialIntelligence", "#TechNews", "#MachineLearning"],
+    "rotating": ["#OpenAI", "#Anthropic", "#Claude", "#GPT", "#Gemini", "#LLM", "#AInews", "#GenerativeAI", "#TechTwitter"]
+  },
+  "cta": {
+    "news": "Follow for the fastest AI news, no fluff.",
+    "meme": "Follow @ai.pulse — we explain the news, then we laugh about it."
+  }
+}

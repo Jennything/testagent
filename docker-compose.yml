@@ -1,0 +1,55 @@
+version: "3.9"
+
+# Four small always-on processes + one shared JSON "database" file and one
+# shared directory of rendered card images. This is intentionally simple —
+# a single VPS (even the cheapest DigitalOcean/Lightsail box) running
+# `docker compose up -d` is enough for a solo founder at this volume
+# (3-5 posts/day). Swap in Postgres + S3 only once you outgrow lowdb/local disk.
+
+services:
+  scheduler:
+    build: .
+    command: node dist/pipeline/runScheduler.js
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./public:/app/public
+    restart: unless-stopped
+
+  approval-bot:
+    build: .
+    command: node dist/approval/telegramBot.js
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./public:/app/public
+    restart: unless-stopped
+
+  publisher:
+    build: .
+    command: node dist/publish/publisher.js
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./public:/app/public
+    restart: unless-stopped
+
+  analytics:
+    build: .
+    command: node dist/analytics/insights.js
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./public:/app/public
+    restart: unless-stopped
+
+  image-server:
+    build: .
+    command: node dist/server/index.js
+    env_file: .env
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./data:/app/data
+      - ./public:/app/public
+    restart: unless-stopped

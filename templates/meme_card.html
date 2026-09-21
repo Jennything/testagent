@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>meme_card</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px;
+    height: 1350px;
+    background: radial-gradient(120% 120% at 85% 0%, #401a3a 0%, #120a0e 55%, #06060a 100%);
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+  }
+  .card { width: 1080px; height: 1350px; padding: 72px 76px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+  .top-row { display: flex; justify-content: space-between; align-items: center; }
+  .source-pill {
+    background: rgba(255, 77, 109, 0.16);
+    border: 1.5px solid #FF4D6D;
+    color: #FFC2CF;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 10px 24px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+  .badge {
+    background: #FFD23F;
+    color: #241900;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+  .body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 36px; }
+  .headline {
+    font-size: 92px;
+    font-weight: 800;
+    line-height: 1.05;
+    color: #FFF6F8;
+    letter-spacing: -1.5px;
+  }
+  .bullets { display: flex; flex-direction: column; gap: 18px; margin-top: 4px; }
+  .bullet { font-size: 38px; color: #FFD9E0; font-weight: 600; line-height: 1.4; }
+  .footer { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1.5px solid rgba(255,255,255,0.12); padding-top: 32px; }
+  .brand { font-size: 32px; font-weight: 800; color: #FFF6F8; letter-spacing: 1px; }
+  .brand-sub { font-size: 24px; color: #C79AA6; margin-top: 4px; }
+  .date { font-size: 24px; color: #C79AA6; text-align: right; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-row">
+      <div class="source-pill">{{SOURCE_LABEL}}</div>
+      <div class="badge">{{BADGE}}</div>
+    </div>
+    <div class="body">
+      <div class="headline">{{HEADLINE}}</div>
+      <div class="bullets">{{BULLETS_HTML}}</div>
+    </div>
+    <div class="footer">
+      <div>
+        <div class="brand">{{BRAND_NAME}}</div>
+        <div class="brand-sub">{{BRAND_HANDLE}}</div>
+      </div>
+      <div class="date">{{DATE}}</div>
+    </div>
+  </div>
+</body>
+</html>

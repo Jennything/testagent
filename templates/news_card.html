@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>news_card</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px;
+    height: 1350px;
+    background: radial-gradient(120% 120% at 15% 0%, #1b1440 0%, #0a0a12 55%, #06060a 100%);
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+  }
+  .card { width: 1080px; height: 1350px; padding: 72px 76px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+  .top-row { display: flex; justify-content: space-between; align-items: center; }
+  .source-pill {
+    background: rgba(124, 92, 252, 0.16);
+    border: 1.5px solid #7C5CFC;
+    color: #C9BBFF;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 10px 24px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+  .badge {
+    background: #7C5CFC;
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+  .body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 40px; }
+  .headline {
+    font-size: 84px;
+    font-weight: 800;
+    line-height: 1.08;
+    color: #FAFAFF;
+    letter-spacing: -1.5px;
+  }
+  .subhead {
+    font-size: 36px;
+    font-weight: 500;
+    color: #A9A3C9;
+    line-height: 1.35;
+  }
+  .bullets { display: flex; flex-direction: column; gap: 22px; margin-top: 8px; }
+  .bullet { display: flex; gap: 18px; align-items: flex-start; font-size: 34px; color: #E6E3F7; font-weight: 500; line-height: 1.4; }
+  .bullet-dot { min-width: 14px; height: 14px; border-radius: 50%; background: #7C5CFC; margin-top: 14px; }
+  .footer { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1.5px solid rgba(255,255,255,0.12); padding-top: 32px; }
+  .brand { font-size: 32px; font-weight: 800; color: #FAFAFF; letter-spacing: 1px; }
+  .brand-sub { font-size: 24px; color: #8B84B5; margin-top: 4px; }
+  .date { font-size: 24px; color: #8B84B5; text-align: right; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-row">
+      <div class="source-pill">{{SOURCE_LABEL}}</div>
+      <div class="badge">{{BADGE}}</div>
+    </div>
+    <div class="body">
+      <div class="headline">{{HEADLINE}}</div>
+      <div class="subhead">{{SUBHEAD}}</div>
+      <div class="bullets">{{BULLETS_HTML}}</div>
+    </div>
+    <div class="footer">
+      <div>
+        <div class="brand">{{BRAND_NAME}}</div>
+        <div class="brand-sub">{{BRAND_HANDLE}}</div>
+      </div>
+      <div class="date">{{DATE}}</div>
+    </div>
+  </div>
+</body>
+</html>
