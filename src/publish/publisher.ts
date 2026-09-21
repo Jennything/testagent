@@ -9,6 +9,11 @@ import { logger } from "../utils/logger";
 
 dotenv.config();
 
+// Threads credentials are optional — until THREADS_ACCESS_TOKEN/THREADS_USER_ID
+// are set, we publish to Instagram only rather than treating a missing
+// integration as a failure on every single post.
+const threadsConfigured = !!(process.env.THREADS_ACCESS_TOKEN && process.env.THREADS_USER_ID);
+
 export async function drainApprovedQueue(): Promise<void> {
   const approved: QueueEntry[] = db.get("queue").filter({ status: "approved" }).value();
 
@@ -24,20 +29,25 @@ export async function drainApprovedQueue(): Promise<void> {
     try {
       const imageUrl = entry.imageUrl || (await publishImageUrl(entry.imagePath));
 
-      const results = await Promise.allSettled([
-        publishToInstagram(imageUrl, entry.draft.captionInstagram),
-        publishToThreads(imageUrl, entry.draft.captionThreads),
-      ]);
+      const jobs: Array<Promise<["instagram" | "threads", string]>> = [
+        publishToInstagram(imageUrl, entry.draft.captionInstagram).then((id) => ["instagram", id]),
+      ];
+      if (threadsConfigured) {
+        jobs.push(publishToThreads(imageUrl, entry.draft.captionThreads).then((id) => ["threads", id]));
+      }
 
-      const [igResult, threadsResult] = results;
+      const results = await Promise.allSettled(jobs);
       const publishedPostIds: { instagram?: string; threads?: string } = {};
       const errors: string[] = [];
 
-      if (igResult.status === "fulfilled") publishedPostIds.instagram = igResult.value;
-      else errors.push(`Instagram: ${igResult.reason?.message || igResult.reason}`);
-
-      if (threadsResult.status === "fulfilled") publishedPostIds.threads = threadsResult.value;
-      else errors.push(`Threads: ${threadsResult.reason?.message || threadsResult.reason}`);
+      for (const result of results) {
+        if (result.status === "fulfilled") {
+          const [platform, id] = result.value;
+          publishedPostIds[platform] = id;
+        } else {
+          errors.push(result.reason?.message || String(result.reason));
+        }
+      }
 
       const anyPublished = !!(publishedPostIds.instagram || publishedPostIds.threads);
       db.get("queue")
@@ -52,7 +62,7 @@ export async function drainApprovedQueue(): Promise<void> {
         .write();
 
       if (errors.length) logger.warn(`Partial publish failure for ${entry.queueId}: ${errors.join(" | ")}`);
-      else logger.info(`Published ${entry.queueId} to both platforms.`);
+      else logger.info(`Published ${entry.queueId} to ${threadsConfigured ? "both platforms" : "Instagram"}.`);
     } catch (err) {
       logger.error(`Publish failed entirely for ${entry.queueId}:`, (err as Error).message);
       db.get("queue")
@@ -65,7 +75,9 @@ export async function drainApprovedQueue(): Promise<void> {
 
 if (require.main === module) {
   const timezone = process.env.TIMEZONE || "Asia/Seoul";
-  logger.info("Publisher worker started. Draining any approved items now, then checking every 10 minutes.");
+  logger.info(
+    `Publisher worker started (Threads ${threadsConfigured ? "enabled" : "disabled — add THREADS_ACCESS_TOKEN/THREADS_USER_ID later to turn it on"}). Draining any approved items now, then checking every 10 minutes.`
+  );
   drainApprovedQueue();
   cron.schedule("*/10 * * * *", () => drainApprovedQueue(), { timezone });
 }

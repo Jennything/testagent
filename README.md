@@ -68,8 +68,10 @@ node dist/server/index.js            # 카드 이미지 퍼블릭 호스팅 (IMA
 3. **Instagram (Meta Graph API)** — 비즈니스용 Facebook 페이지에 IG 비즈니스 계정 연결 →
    [Meta for Developers](https://developers.facebook.com) 앱 생성 → `instagram_content_publish` 권한 →
    장기 액세스 토큰 발급.
-4. **Threads API** — Meta 개발자 콘솔에서 **별도의 앱**을 만들어야 합니다 (IG용 앱과 공유 불가).
-   Threads 전용 OAuth 플로우로 액세스 토큰 발급.
+4. **Threads API (선택, 나중에 추가 가능)** — `THREADS_ACCESS_TOKEN`/`THREADS_USER_ID`를 비워두면
+   `src/publish/publisher.ts`가 자동으로 감지해서 **인스타그램에만 발행**하고 넘어갑니다. 즉 Threads
+   설정 없이 바로 런칭해도 됩니다 — 준비되면 두 값만 채워 넣으면 다음 발행부터 자동으로 켜집니다.
+   나중에 설정할 때는: Meta 앱 대시보드 → Use cases → "Access the Threads API" 로 진행.
 5. **이미지 퍼블릭 호스팅** — Graph API는 이미지가 인터넷에서 접근 가능한 URL이어야 합니다.
    - 가장 쉬운 방법: `IMAGE_HOST=cloudinary` + `CLOUDINARY_URL` (무료 티어로 충분).
    - 또는 `IMAGE_HOST=local` + `src/server/index.ts` 를 실제 도메인 뒤에 배포(`BASE_PUBLIC_URL`).
