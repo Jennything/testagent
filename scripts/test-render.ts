@@ -1,4 +1,4 @@
-// Smoke test: renders a 5-slide news carousel and a single-image meme card
+// Smoke test: renders a 6-slide news carousel and a single-image meme card
 // with dummy data, no API keys required. Run with: npm run test:render
 import path from "path";
 import { renderCard, closeRenderer } from "../src/visuals/render";
@@ -25,7 +25,7 @@ function makeItem(overrides: Partial<ScoredItem>): ScoredItem {
 }
 
 async function main() {
-  // News carousel — has a photo, exercises cover + summary + 3 detail slides.
+  // News carousel — has a photo, exercises cover + summary + 3 detail slides + CTA.
   const newsItem = makeItem({ imageUrl: "https://picsum.photos/seed/ainews-openai/1080/900" });
   const newsDraft: Draft = {
     itemId: newsItem.id,
@@ -36,15 +36,18 @@ async function main() {
     points: [
       {
         point: "40% faster inference than the previous model",
-        detail: "OpenAI says the new model responds noticeably faster in both the API and ChatGPT, especially on longer prompts.",
+        detail:
+          "OpenAI says the new model responds noticeably faster in both the API and ChatGPT, especially on long, multi-step prompts. Internal benchmarks put median response time down from 2.1 seconds to 1.3 seconds. The gain comes from a redesigned inference stack, not a smaller model — output quality on OpenAI's own eval suite is unchanged.",
       },
       {
         point: "Cheaper per token for API customers",
-        detail: "Input token pricing drops alongside the speed bump, making high-volume use cases meaningfully cheaper to run.",
+        detail:
+          "Input token pricing drops 25% and output pricing drops 15%, effective immediately for all API tiers. For a team processing 10 million tokens a day, that works out to roughly $180/month in savings at current rates. No code changes are required — existing API keys get the new pricing automatically.",
       },
       {
         point: "Rolling out to API and ChatGPT this week",
-        detail: "The update ships gradually across regions this week — no action needed, existing integrations pick it up automatically.",
+        detail:
+          "The update ships gradually across regions over the next seven days, starting with US and EU traffic. ChatGPT Plus and Team users will see a model picker update once it reaches their region. Enterprise customers on pinned model versions won't be affected until they opt in.",
       },
     ],
     sourceLabel: "OpenAI Blog",
@@ -73,7 +76,7 @@ async function main() {
     createdAt: new Date().toISOString(),
   };
 
-  console.log("Rendering news carousel (cover + summary + 3 detail slides)...");
+  console.log("Rendering news carousel (cover + summary + 3 detail slides + CTA)...");
   const newsPaths = await renderCard(newsItem, newsDraft);
   newsPaths.forEach((p) => console.log("  →", p));
 

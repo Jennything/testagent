@@ -27,7 +27,7 @@ AI 소식을 가장 빠르고 정확하게 전달하면서, 가끔 밈으로 웃
 | 소스 모니터링 | `src/sources/*` | RSS(`rss-parser`), Hacker News(Algolia API), Reddit(공개 JSON), X(선택, 유료) |
 | 큐레이션·스코어링 | `src/curation/*` | 최신성/신뢰도/화제성은 코드로 계산, 브랜드 적합도·참신성·카테고리는 Claude가 판정 |
 | 초안 작성 | `src/content/*` | `config/brand.json` 에 고정된 브랜드 보이스로 Claude가 카피 생성 — 뉴스는 헤드라인+3포인트, 밈은 헤드라인+불릿 |
-| 비주얼 생성 | `templates/*.html` + `src/visuals/render.ts` | Playwright로 HTML 템플릿을 1080×1350 PNG로 스크린샷. 뉴스는 5장 캐러셀, 밈/브레이킹은 1장 |
+| 비주얼 생성 | `templates/*.html` + `src/visuals/render.ts` | Playwright로 HTML 템플릿을 1080×1350 PNG로 스크린샷. 뉴스는 6장 캐러셀, 밈/브레이킹은 1장 |
 | 사람 승인 | `src/approval/emailBot.ts` | 하루 09:00/19:00 배치로 이메일 발송(슬라이드 전부 첨부) + 답장("승인"/"반려"/"수정") 자동 처리 |
 | 발행 | `src/publish/*` | IG Graph API(단일 이미지 또는 캐러셀) + Threads API(항상 단일 이미지), 둘 다 "컨테이너 생성 → 퍼블리시" 흐름 |
 | 분석·피드백 | `src/analytics/*` | Insights API로 참여율 수집 → 소스별 성과 배수를 스코어링에 반영 |
@@ -43,7 +43,7 @@ cp .env.example .env   # 키 채우기 (아래 "필요한 계정/키" 참고)
 
 # 1) API 키 없이 카드 렌더링 파이프라인만 먼저 검증
 npm run test:render
-# public/cards/ 에 PNG 6장(뉴스 캐러셀 5장 + 밈 1장)이 생성됩니다 — 템플릿 디자인을 먼저 눈으로 확인하세요.
+# public/cards/ 에 PNG 7장(뉴스 캐러셀 6장 + 밈 1장)이 생성됩니다 — 템플릿 디자인을 먼저 눈으로 확인하세요.
 
 # 2) 빌드 후 4개 프로세스를 각자 터미널(또는 pm2/docker)로 실행
 npm run build
@@ -84,7 +84,7 @@ RSS 피드 URL(`config/sources.json`)은 각 매체가 수시로 바꾸므로, �
 
 ## 매일 운영 흐름 (사람이 하는 유일한 일)
 
-1. 아침 09:00, 저녁 19:00에 `EMAIL_TO` 주소로 카드 이미지(뉴스는 5장, 밈은 1장, 모두 첨부파일) + 캡션 미리보기 메일이 배치로 도착합니다.
+1. 아침 09:00, 저녁 19:00에 `EMAIL_TO` 주소로 카드 이미지(뉴스는 6장, 밈은 1장, 모두 첨부파일) + 캡션 미리보기 메일이 배치로 도착합니다.
    메일 제목은 `[검토 필요 · 뉴스] 헤드라인... (ID:...)` 형식입니다.
 2. 그 메일에 **그대로 "답장(Reply)"** 해서 제목은 건드리지 말고 본문 첫 줄에:
    - **"승인"** → 발행 대기열로. 10분 내 IG+Threads 동시 발행.
@@ -94,12 +94,13 @@ RSS 피드 URL(`config/sources.json`)은 각 매체가 수시로 바꾸므로, �
 
 ## 카드 포맷
 
-- **뉴스 (`news_card`) → 5장짜리 캐러셀**
+- **뉴스 (`news_card`) → 6장짜리 캐러셀**
   1. **커버** — 사진(있으면) + 헤드라인 + 한 줄 요약 (`templates/news_card.html`, 급한 뉴스는 `breaking_card.html`)
   2. **요약** — 헤드라인 + 번호 매긴 3가지 포인트 (`templates/summary_slide.html`)
-  3~5. **상세** — 3가지 포인트를 한 장씩 자세히 설명 (`templates/detail_slide.html`, 큰 번호 워터마크)
+  3~5. **상세** — 3가지 포인트를 한 장씩 60~100단어로 자세히 설명 (`templates/detail_slide.html`, 큰 번호 워터마크)
+  6. **CTA** — "Your 5-Minute AI Digest" 태그라인 + 팔로우 유도 (`templates/cta_slide.html`, Claude 호출 없이 `config/brand.json.cta`에서 고정 문구 사용)
 - **밈 (`meme_card`) → 1장** — 속도가 생명이라 캐러셀 없이 사진/그라데이션 + 헤드라인만 (`templates/meme_card.html`)
-- Claude가 뉴스 아이템마다 `points: [{point, detail}, ...]` 정확히 3개를 생성하고, `src/visuals/render.ts` 가 이걸로 슬라이드 2~5를 채웁니다. 3개가 안 오면 폴백 포인트로 대체합니다(`src/content/draft.ts`).
+- Claude가 뉴스 아이템마다 `points: [{point, detail}, ...]` 정확히 3개를 생성하고, `src/visuals/render.ts` 가 이걸로 슬라이드 2~5를 채웁니다. `detail`은 60~100단어 분량으로 구체적인 수치·비교·영향을 담도록 프롬프트에 명시했습니다(`src/content/brandVoice.ts`). 3개가 안 오면 폴백 포인트로 대체합니다(`src/content/draft.ts`).
 - 인스타그램 발행 시 슬라이드 개수로 자동 분기합니다: 2장 이상이면 `publishCarouselToInstagram`(CAROUSEL_ITEM 컨테이너 여러 개 → CAROUSEL 부모 컨테이너 → 퍼블리시), 1장이면 기존 단일 이미지 발행. Threads는 (연동 시) 캐러셀 여부와 무관하게 항상 커버 슬라이드 1장만 올라갑니다 — Threads 캐러셀 API는 아직 안 붙여놨습니다.
 
 ## 콘텐츠 믹스 & 발행량

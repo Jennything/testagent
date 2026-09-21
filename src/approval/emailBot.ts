@@ -49,7 +49,7 @@ function buildEmailBody(entry: QueueEntry): string {
     entry.draft.captionThreads,
     ``,
     isCarousel
-      ? `카드 이미지 ${entry.imagePaths.length}장(커버→요약→상세 순서)이 첨부되어 있습니다.`
+      ? `카드 이미지 ${entry.imagePaths.length}장(커버→요약→상세→CTA 순서)이 첨부되어 있습니다.`
       : `카드 이미지는 첨부파일로 함께 보냈습니다.`,
     ``,
     `────────────────────────────────`,

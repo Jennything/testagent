@@ -89,7 +89,7 @@ function coverTemplate(item: ScoredItem): string {
 /**
  * Renders the given item+draft into one or more 1080x1350 PNG slides:
  * - meme_card: a single image.
- * - news_card: a 5-slide carousel (cover, 3-point summary, one detail slide per point).
+ * - news_card: a 6-slide carousel (cover, 3-point summary, one detail slide per point, follow-CTA).
  * Returns the slide paths in display order.
  */
 export async function renderCard(item: ScoredItem, draft: Draft): Promise<string[]> {
@@ -112,7 +112,7 @@ export async function renderCard(item: ScoredItem, draft: Draft): Promise<string
     return [out];
   }
 
-  // news_card → 5-slide carousel.
+  // news_card → 6-slide carousel: cover, summary, 3 detail slides, follow-CTA.
   const points = draft.points && draft.points.length === 3 ? draft.points : [];
 
   const coverPath = await renderSlide(
@@ -153,5 +153,16 @@ export async function renderCard(item: ScoredItem, draft: Draft): Promise<string
     detailPaths.push(detailPath);
   }
 
-  return [coverPath, summaryPath, ...detailPaths];
+  const ctaPath = await renderSlide(
+    "cta_slide.html",
+    {
+      "{{BRAND_NAME}}": escapeHtml(brandConfig.name),
+      "{{TAGLINE}}": escapeHtml(brandConfig.cta.carousel_tagline),
+      "{{SUBTEXT}}": escapeHtml(brandConfig.cta.carousel_subtext),
+      "{{HANDLE}}": escapeHtml(brandConfig.handle_instagram),
+    },
+    `${item.id}-${stamp}-${3 + points.length}.png`
+  );
+
+  return [coverPath, summaryPath, ...detailPaths, ctaPath];
 }
