@@ -1,9 +1,11 @@
+// Must be the very first import: the Cloudinary SDK reads CLOUDINARY_URL
+// from process.env at require-time, so .env has to be loaded before the
+// `cloudinary` import below runs — see src/env.ts for why.
+import "../env";
+
 import path from "path";
-import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
 import { logger } from "../utils/logger";
-
-dotenv.config();
 
 let cloudinaryConfigured = false;
 function ensureCloudinary() {
@@ -11,7 +13,7 @@ function ensureCloudinary() {
   if (!process.env.CLOUDINARY_URL) {
     throw new Error("CLOUDINARY_URL not set but IMAGE_HOST=cloudinary");
   }
-  // cloudinary SDK reads CLOUDINARY_URL from env automatically.
+  // cloudinary SDK reads CLOUDINARY_URL from env automatically, at import time.
   cloudinaryConfigured = true;
 }
 
