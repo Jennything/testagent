@@ -13,6 +13,7 @@
     "dev:analytics": "ts-node src/analytics/insights.ts",
     "dev:server": "ts-node src/server/index.ts",
     "test:render": "ts-node scripts/test-render.ts",
+    "retry-failed": "ts-node scripts/retry-failed.ts",
     "start:scheduler": "node dist/pipeline/runScheduler.js",
     "start:bot": "node dist/approval/emailBot.js",
     "start:publisher": "node dist/publish/publisher.js",
