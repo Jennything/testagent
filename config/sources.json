@@ -1,7 +1,7 @@
 {
   "rss": [
     { "id": "openai-blog", "url": "https://openai.com/blog/rss.xml", "credibility": 95, "kind": "lab" },
-    { "id": "anthropic-news", "url": "https://www.anthropic.com/news/rss.xml", "credibility": 95, "kind": "lab" },
+    { "id": "anthropic-news", "url": "https://openrss.org/www.anthropic.com/news", "credibility": 95, "kind": "lab" },
     { "id": "google-ai-blog", "url": "https://blog.google/technology/ai/rss/", "credibility": 90, "kind": "lab" },
     { "id": "deepmind-blog", "url": "https://deepmind.google/blog/rss.xml", "credibility": 90, "kind": "lab" },
     { "id": "techcrunch-ai", "url": "https://techcrunch.com/category/artificial-intelligence/feed/", "credibility": 75, "kind": "press" },

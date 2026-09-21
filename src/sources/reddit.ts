@@ -38,7 +38,12 @@ export async function fetchRedditItems(): Promise<RawItem[]> {
       try {
         const resp = await axios.get(`https://www.reddit.com/r/${sub}/${cfg.sort}.json?limit=15`, {
           timeout: 15000,
-          headers: { "User-Agent": "ai-pulse-media-bot/0.1 (source monitoring)" },
+          // Reddit's public JSON endpoints reject generic User-Agents; this follows
+          // their documented format (platform:app-id:version (by /u/username)).
+          // Even so, Reddit increasingly 403s unauthenticated traffic — if this
+          // keeps failing, set reddit.enabled=false in config/sources.json and
+          // rely on RSS + Hacker News instead.
+          headers: { "User-Agent": "web:ai-news-you-need:v1.0 (by /u/AiNewsYouNeed)" },
         });
         const posts: RedditPost[] = resp.data?.data?.children || [];
         for (const post of posts) {

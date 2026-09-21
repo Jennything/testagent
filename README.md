@@ -77,7 +77,10 @@ node dist/server/index.js            # 카드 이미지 퍼블릭 호스팅 (IMA
    - 또는 `IMAGE_HOST=local` + `src/server/index.ts` 를 실제 도메인 뒤에 배포(`BASE_PUBLIC_URL`).
 
 RSS 피드 URL(`config/sources.json`)은 각 매체가 수시로 바꾸므로, 배포 전에 실제로 접속해서
-유효한지 한 번씩 확인하세요.
+유효한지 한 번씩 확인하세요. Anthropic은 공식 RSS를 제공하지 않아 [openrss.org](https://openrss.org)의
+비공식 미러를 쓰고 있습니다 — 언젠가 그 서비스가 죽으면 해당 소스만 조용히 빠지고 나머지 파이프라인은
+정상 동작합니다. Reddit(`config/sources.json.reddit`)은 최근 비인증 요청을 자주 403으로 막는데,
+계속 막히면 `reddit.enabled`를 `false`로 바꾸고 RSS+Hacker News만으로 운영해도 충분합니다.
 
 ## 매일 운영 흐름 (사람이 하는 유일한 일)
 
